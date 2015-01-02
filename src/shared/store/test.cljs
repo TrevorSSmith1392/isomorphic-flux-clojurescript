@@ -7,6 +7,10 @@
     "testSignal" 
     (do
       (swap! state update-in [:count] inc))
+    "setCount"
+    (let [[count] args] 
+      (swap! state assoc-in [:count] count))
+    
 
     "other signal" 
     (do

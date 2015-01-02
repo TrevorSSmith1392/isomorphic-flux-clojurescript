@@ -35,7 +35,7 @@
 (defn createContext 
   "Create an instance of the stores for the application, 
   reinitializing from the given context if available"
-  [& [serialized]]
+  [fetcher & [serialized]]
   (let [refs (transient {}) 
         ordered (->> storesTopo
                   (mapv (fn [storeId]
@@ -47,8 +47,9 @@
                             (assoc! refs storeId state)
                             {:state state
                              :handler (:handler store)}))))]
-    {:by-id (persistent! refs)
-     :ordered ordered}))
+    (with-meta {:by-id (persistent! refs)
+                :ordered ordered}
+               {:fetcher fetcher})))
 
 (defn dispatch [context signal & args]
   (doseq [store (:ordered context)]
@@ -63,9 +64,9 @@
 (defn stores [context & stores]
   (mapv #(store context %) stores))
 
-(defn serialize [context]
+(defn raw [context]
   (let [by-id (:by-id context)
         res (transient {})]
     (doseq [[id atom] by-id]
       (assoc! res id @atom))
-    (pr-str (persistent! res))))
+    (persistent! res)))

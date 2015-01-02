@@ -23,16 +23,20 @@
   (let [parent (deref (:store.test/test-store 
                        (:by-id context)))
         count (:count parent)
-        ]
-    (m/dispatch signal
-     "testSignal" 
-     (do
-       (let [words (repeat count "words")]
-         (reset! state words)))
+        update #(let [words (repeat count "words")]
+                  (reset! state words))]
 
-     "fuck" 
-     (do
-       (println "some other signla" args)))))
+    (m/dispatch signal
+      "testSignal" 
+      (update)
+      "setCount"
+      (update)
+     
+     
+
+      "fuck" 
+      (do
+        (println "some other signla" args)))))
 
 (def schemaTwo
   {:id ::other-two

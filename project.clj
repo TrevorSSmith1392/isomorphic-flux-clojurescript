@@ -6,6 +6,7 @@
                  [org.clojure/clojurescript "0.0-2505"]
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [reagent "0.5.0-alpha"]
+                 [com.cognitect/transit-cljs "0.8.194"]
                  ]
 
   :node-dependencies [[source-map-support "0.2.8"]
@@ -14,7 +15,9 @@
                       [react "0.12.2"]
                       [fluxible-app "0.1.2"]
                       [fluxible-plugin-fetchr "0.2.1"]
-                      [dot 1.0.3]
+                      [dot "1.0.3"]
+                      [fetchr "0.4.6"]
+                      [body-parser "1.10.0"]
                       ]
 
   :plugins [[lein-cljsbuild "1.0.4-SNAPSHOT"]

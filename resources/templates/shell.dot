@@ -11,9 +11,11 @@
     </head>
     <body>
         <div id="container">{{=it.content}}</div>
-        <script type="text/edn" id="state">{{=it.state}}</script>
         <div id="two"></div>
+        <script type="application/json" id="state">{{=it.state}}</script>
         <script src="js/react-0.12.12.js"></script>
+        <script src="js/superagent.min.js"></script>
+        <script src="js/client-bundle.js"></script>
         <script src="js/out/goog/base.js" type="text/javascript"></script>
         <script src="js/main.js" type="text/javascript"></script>
         <script type="text/javascript">goog.require("client.core");</script>
