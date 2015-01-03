@@ -1,5 +1,5 @@
 (ns client.core
-  (:require [reagent.core :as r :refer [atom]]
+  (:require [reagent.core :as r]
             [component.comp :as comp]
             [application.context :as context]
             [application.actions :as actions] 
@@ -12,10 +12,10 @@
 
 (def fetcher (Fetcher/Fetcher. "/api"))
 
-(i/read fetcher "test" {:from :read-call} nil (fn [err res] 
+#_(i/read fetcher "test" {:from :read-call} nil (fn [err res] 
                               (println "client fetcher" err res)))
-#_(i/create fetch "test" {:from :create-call} nil nil nil (fn [err res] 
-                              (println "client fetcher" err res)))
+(i/create fetcher "test" {:from :create-call} nil nil (fn [err res] 
+                              (println "client fetcher [create]" err res)))
 
 (def givenState (-> (.getElementById js/document "state")
                   .-innerText u/deserialize))

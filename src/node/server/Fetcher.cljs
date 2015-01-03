@@ -4,10 +4,13 @@
             [application.util :as u]) 
   )
 (def qs (node/require "qs"))
+(declare fetcherRequest)
 
 (def resources (atom {}))
-(defn register [{:keys [name read create]}]
-  (swap! resources assoc name {:read read :update update}))
+(defn register [{:keys [name read create update delete]}]
+  (swap! resources assoc name 
+         {:read read :create create
+          :update update :delete delete}))
 
 (defn normalizeErrors [cb]
   (fn [err res]
@@ -15,14 +18,15 @@
       (cb {:type :application :err err} nil)
       (cb nil res))))
 
+
 (deftype Fetcher [req]
   i/IFetcher
   (read [this resourceName params config cb]
-    (let [resource (get-in @resources [resourceName :read])]
-      (resource req resourceName params config (normalizeErrors cb))))
+    (fetcherRequest resourceName :read req
+                    params config (normalizeErrors cb)))
   (create [this resourceName params body config cb]
-    (let [resource (get-in @resources [resourceName :create])]
-      (resource req resourceName params config (normalizeErrors cb)))))
+    (fetcherRequest resourceName :create req
+                    params config (normalizeErrors cb))))
 
 (defn middleware [req res next]
   (letfn [(middlewareResponse [err data]
@@ -37,11 +41,23 @@
             params (->> path 
                      first 
                      (.parse qs))
-            cljParams (-> params .-parm u/deserialize)
-            resource (get-in @resources [resourceName :read])]
-        (resource req resourceName cljParams nil middlewareResponse))
+            cljParams (-> params .-parm u/deserialize)]
+        (fetcherRequest resourceName :read req
+                        cljParams nil middlewareResponse))    
       ;all others
       (let [body (-> req .-body u/deserialize)
-            {:keys [resourceName operation params config]} body
-            resource (get-in @resources [resourceName operation])]
-        (resource req resourceName params config middlewareResponse)))))
+            {:keys [resourceName operation params config]} body]
+        (fetcherRequest resourceName operation req
+                        params config middlewareResponse)))))
+
+;this may need to handle errors better
+(defn fetcherRequest [resourceName operation
+                      req params config responseCb]
+  (if-let [resource (@resources resourceName)]
+    (if-let [method (resource operation)]
+      (method req resourceName params config responseCb) 
+      (responseCb 
+        (str "Method [" operation 
+             "] not defined for [" resourceName "]") nil))
+    (responseCb 
+      (str "Fetcher resource [" resourceName "] not found") nil)))

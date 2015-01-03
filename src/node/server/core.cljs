@@ -5,10 +5,9 @@
             [application.context :as context]
             [application.actions :as actions]
             [application.interfaces :as i]
-            [server.Fetcher :as Fetcher]
             [application.util :as u]
-            ) 
-  (:require-macros [server.macros :as m]))
+            [server.Fetcher :as Fetcher]
+            ))
 
 (.install (node/require "source-map-support"))
 (node/enable-util-print!)
@@ -48,11 +47,14 @@
 
               (i/read fetcher "test" nil nil 
                       (fn [err res]
-                        (println "server fetcher" res)))
+                        (println "server fetcher" err res)))
               (let [markup (r/render-to-string [comp/parent context])
                     state (u/serialize (context/raw context))
                     page (.shell dots #js {:content markup :state state})]
-                (.send res page))))))
+                (.send res page)))))
+    (.use (fn [err req res next]
+            (.log js/console err)
+            (-> res (.status 500) (.send "Something went wrong")))))
 
 
   (.log js/console 
